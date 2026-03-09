@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MBSI | Design Resource Library</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --navy:#0a1628;--navy2:#122040;--blue:#1a4a8a;
+  --gold:#c8a84b;--gold2:#a8873a;
+  --white:#fff;--off:#f7f6f3;--border:#e2dfd8;
+  --text:#1a2030;--muted:#7a8090;--light:#eceae4;
+  --green:#2d7a4f;--red:#c0392b;--purple:#6c3483;
+  --orange:#c87941;--darkblue:#154360;
+}
+html{scroll-behavior:smooth}
+body{font-family:'Montserrat',sans-serif;background:var(--off);color:var(--text);-webkit-font-smoothing:antialiased}
+
+/* NAV */
+nav{background:var(--white);position:sticky;top:0;z-index:300;border-bottom:1px solid var(--border);box-shadow:0 2px 16px rgba(0,0,0,.07)}
+.nav-inner{max-width:1280px;margin:0 auto;padding:0 28px;display:flex;align-items:center;justify-content:space-between;height:64px;gap:12px}
+.nav-logo img{height:38px;width:auto;display:block}
+.nav-tabs{display:flex;gap:0;height:64px;align-items:stretch}
+.nav-tab{display:flex;align-items:center;padding:0 16px;font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap;border:none;background:none;font-family:'Montserrat',sans-serif}
+.nav-tab:hover{color:var(--navy)}
+.nav-tab.active{color:var(--navy);border-bottom:2px solid var(--gold)}
+.nav-right{display:flex;align-items:center;gap:10px}
+.nav-site-link{font-size:11px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);text-decoration:none;transition:color .2s;white-space:nowrap}
+.nav-site-link:hover{color:var(--navy)}
+.nav-divider{width:1px;height:20px;background:var(--border)}
+.nav-cta{background:var(--navy);color:var(--white);padding:8px 16px;border-radius:4px;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;text-decoration:none;white-space:nowrap;transition:background .2s}
+.nav-cta:hover{background:var(--blue)}
+.nav-linecard{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:4px;border:1.5px solid var(--border);font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);text-decoration:none;white-space:nowrap;transition:all .2s}
+.nav-linecard:hover{border-color:var(--gold);color:var(--gold)}
+.nav-linecard svg{flex-shrink:0}
+
+/* HERO */
+.hero{position:relative;overflow:hidden;min-height:620px;display:flex;align-items:center}
+.hero-bg{position:absolute;inset:0;overflow:hidden}
+.hero-bg img{width:100%;height:100%;object-fit:cover;object-position:center 60%;transform:scale(1.03);filter:brightness(.85) contrast(1.05);display:block}
+.hero-overlay{position:absolute;inset:0;background:linear-gradient(to right,rgba(8,18,34,.88) 0%,rgba(8,18,34,.72) 35%,rgba(8,18,34,.55) 60%,rgba(8,18,34,.65) 100%)}
+.hero-overlay::after{content:'';position:absolute;inset:0;background:linear-gradient(to bottom,rgba(8,18,34,.2) 0%,transparent 30%,rgba(8,18,34,.4) 100%)}
+.hero-inner{max-width:1280px;width:100%;margin:0 auto;padding:80px 28px 88px;position:relative;z-index:1}
+.hero-content{max-width:580px}
+.hero-kicker{display:inline-flex;align-items:center;gap:8px;font-size:10px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:20px}
+.hero-kicker::before{content:'';width:24px;height:1px;background:var(--gold)}
+.hero h1{font-family:'Cormorant Garamond',serif;font-size:clamp(42px,5.5vw,72px);font-weight:300;color:var(--white);line-height:1.03;letter-spacing:-.01em;margin-bottom:16px}
+.hero h1 em{font-style:italic;color:rgba(255,255,255,.38)}
+.hero-sub{font-size:13px;font-weight:300;color:rgba(255,255,255,.5);line-height:1.75;margin-bottom:34px}
+.hero-actions{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:44px;align-items:center}
+.hero-btn{padding:11px 22px;border-radius:4px;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;text-decoration:none;transition:all .2s;cursor:pointer;border:none;font-family:'Montserrat',sans-serif}
+.hero-btn-primary{background:var(--gold);color:var(--navy)}
+.hero-btn-primary:hover{background:var(--gold2)}
+.hero-btn-outline{background:transparent;color:rgba(255,255,255,.7);border:1.5px solid rgba(255,255,255,.22)}
+.hero-btn-outline:hover{border-color:var(--gold);color:var(--gold)}
+.hero-stats{display:flex;gap:40px;padding-top:30px;border-top:1px solid rgba(255,255,255,.1);flex-wrap:wrap}
+.stat-n{font-family:'Cormorant Garamond',serif;font-size:34px;font-weight:300;color:var(--white);line-height:1}
+.stat-l{font-size:9px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.3);margin-top:4px}
+.hero-photo-credit{position:absolute;bottom:14px;right:20px;font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.2);z-index:1}
+
+/* TABS */
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+
+/* FILTER BAR */
+.filter-bar{background:var(--white);border-bottom:1px solid var(--border);position:sticky;top:64px;z-index:200;box-shadow:0 2px 12px rgba(0,0,0,.06)}
+.filter-inner{max-width:1280px;margin:0 auto;padding:10px 28px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.search-wrap{position:relative;min-width:150px;max-width:240px}
+.si-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none}
+#si{width:100%;padding:7px 12px 7px 30px;border:1.5px solid var(--border);border-radius:5px;font-family:'Montserrat',sans-serif;font-size:12px;color:var(--text);background:var(--off);outline:none;transition:border-color .2s,background .2s}
+#si:focus{border-color:var(--blue);background:var(--white)}
+#si::placeholder{color:var(--muted)}
+.vd{width:1px;height:24px;background:var(--border);flex-shrink:0}
+.chips{display:flex;gap:5px;flex-wrap:wrap;flex:1}
+.chip{padding:4px 12px;border-radius:3px;border:1.5px solid var(--border);background:transparent;font-family:'Montserrat',sans-serif;font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);cursor:pointer;transition:all .14s;white-space:nowrap}
+.chip:hover{border-color:var(--blue);color:var(--blue)}
+.chip.on{background:var(--navy);border-color:var(--navy);color:var(--white)}
+
+/* MAIN */
+.main{max-width:1280px;margin:0 auto;padding:36px 28px 80px}
+.count{font-size:11px;color:var(--muted);letter-spacing:.05em;text-transform:uppercase;margin-bottom:32px}
+.hidden{display:none!important}
+.no-res{text-align:center;padding:80px 20px}
+.no-res h3{font-family:'Cormorant Garamond',serif;font-size:30px;font-weight:300;color:var(--muted);margin-bottom:8px}
+
+/* MFG CARDS */
+.mfg-card{margin-bottom:44px;border-radius:10px;overflow:hidden;border:1px solid var(--border);background:var(--white);box-shadow:0 2px 16px rgba(0,0,0,.05);transition:box-shadow .25s}
+.mfg-card:hover{box-shadow:0 6px 32px rgba(0,0,0,.1)}
+.mfg-visual{height:160px;position:relative;overflow:hidden;background:var(--navy2)}
+.mfg-visual::after{content:'';position:absolute;inset:0;pointer-events:none;background-image:radial-gradient(circle,rgba(255,255,255,.06) 1px,transparent 1px);background-size:20px 20px;z-index:0}
+.mfg-visual img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .6s ease,opacity .6s ease;display:block}
+.mfg-card:hover .mfg-visual img{transform:scale(1.04)}
+.mfg-visual-overlay{position:absolute;inset:0;background:linear-gradient(to right,rgba(10,22,40,.78) 0%,rgba(10,22,40,.12) 60%)}
+.mfg-visual-label{position:absolute;bottom:0;left:0;right:0;padding:18px 22px;display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
+.mfg-title{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:300;color:var(--white);line-height:1.1;text-shadow:0 2px 8px rgba(0,0,0,.3)}
+.mfg-subtitle{font-size:10px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.5);margin-top:4px}
+.mfg-label-actions{display:flex;gap:6px;flex-shrink:0}
+.mfg-action-btn{padding:5px 12px;border-radius:3px;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;text-decoration:none;white-space:nowrap;transition:all .2s;cursor:pointer;border:none;font-family:'Montserrat',sans-serif}
+.btn-spec{background:var(--gold);color:var(--navy)}
+.btn-spec:hover{background:var(--gold2)}
+.btn-sample{background:rgba(255,255,255,.12);color:rgba(255,255,255,.8);border:1px solid rgba(255,255,255,.2)}
+.btn-sample:hover{background:rgba(255,255,255,.22);color:var(--white)}
+.badge-new{position:absolute;top:14px;right:14px;background:var(--gold);color:var(--navy);font-size:8px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;padding:3px 8px;border-radius:2px}
+.badge-featured{position:absolute;top:14px;right:14px;background:var(--blue);color:var(--white);font-size:8px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;padding:3px 8px;border-radius:2px}
+.mfg-body{padding:20px 22px 22px}
+.grp-header{font-size:9px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);padding:14px 0 10px;border-top:1px solid var(--light);margin-top:6px}
+.grp-header:first-child{border-top:none;margin-top:0;padding-top:2px}
+.doc-grid{display:flex;flex-direction:column;gap:2px;margin-bottom:4px}
+.doc-tile{display:flex;align-items:center;gap:10px;border-radius:5px;border:1px solid var(--light);background:var(--off);text-decoration:none;color:var(--text);transition:all .15s;overflow:hidden;cursor:pointer;padding:8px 10px}
+.doc-tile:hover{border-color:var(--blue);background:var(--white);box-shadow:0 2px 12px rgba(26,74,138,.10);transform:translateX(2px)}
+.doc-type-badge{flex-shrink:0;width:36px;height:22px;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:800;letter-spacing:.08em;color:var(--white)}
+.doc-tile-body{display:flex;align-items:center;gap:6px;flex:1;min-width:0}
+.doc-info{flex:1;min-width:0}
+.doc-name{font-size:11px;font-weight:500;color:var(--text);line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.doc-arrow{color:var(--muted);flex-shrink:0;transition:color .15s}
+.doc-tile:hover .doc-arrow{color:var(--blue)}
+.new-dot{width:6px;height:6px;border-radius:50%;background:var(--gold);flex-shrink:0;margin-left:2px;display:inline-block}
+.ic-spec{background:#1a4a8a}.ic-dwg{background:#2d6e4e}.ic-data{background:#6b3a8a}.ic-clr{background:#c07020}.ic-gde{background:#8a3030}.ic-pdf{background:#3a6a8a}
+
+/* LIGHTBOX */
+#lightbox{position:fixed;inset:0;background:rgba(5,10,20,.95);z-index:1000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s}
+#lightbox.open{opacity:1;pointer-events:all}
+.lb-inner{max-width:900px;width:90%;position:relative}
+.lb-img{width:100%;max-height:75vh;object-fit:contain;border-radius:6px;display:block}
+.lb-info{padding:18px 0 0;display:flex;justify-content:space-between;align-items:flex-start;gap:16px}
+.lb-mfg{font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin-bottom:4px}
+.lb-desc{font-size:13px;color:rgba(255,255,255,.65);line-height:1.5}
+.lb-close{position:absolute;top:-40px;right:0;width:32px;height:32px;background:rgba(255,255,255,.1);border:none;color:var(--white);border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;transition:background .2s;font-family:sans-serif}
+.lb-close:hover{background:rgba(255,255,255,.2)}
+.lb-docs-btn{padding:8px 16px;background:var(--gold);color:var(--navy);border-radius:4px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;text-decoration:none;white-space:nowrap;transition:background .2s;flex-shrink:0;cursor:pointer;border:none;font-family:'Montserrat',sans-serif}
+.lb-docs-btn:hover{background:var(--gold2)}
+
+/* CEU */
+.ceu-main{max-width:1280px;margin:0 auto;padding:60px 28px 80px}
+.section-header{text-align:center;max-width:640px;margin:0 auto 56px}
+.section-header h2{font-family:'Cormorant Garamond',serif;font-size:clamp(34px,4vw,52px);font-weight:300;color:var(--navy);line-height:1.1;margin-bottom:14px}
+.section-header p{font-size:13px;color:var(--muted);line-height:1.7}
+.ceu-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:24px;margin-bottom:56px}
+.ceu-card{background:var(--white);border-radius:10px;border:1px solid var(--border);overflow:hidden;box-shadow:0 2px 16px rgba(0,0,0,.05);transition:box-shadow .25s}
+.ceu-card:hover{box-shadow:0 6px 32px rgba(0,0,0,.1)}
+.ceu-card-top{height:140px;position:relative;overflow:hidden;background:var(--navy2)}
+.ceu-card-top::after{content:'AIA HSW';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:300;letter-spacing:.15em;color:rgba(255,255,255,.08);pointer-events:none;text-transform:uppercase}
+.ceu-card:hover .ceu-card-top{filter:brightness(1.1)}
+.ceu-card-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(10,22,40,.7),transparent)}
+.ceu-hours{position:absolute;bottom:12px;left:14px;font-size:9px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);background:rgba(10,22,40,.6);padding:3px 8px;border-radius:2px}
+.ceu-body{padding:20px}
+.ceu-topics{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.ceu-topic{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:2px 8px;border-radius:2px;background:var(--light);color:var(--muted)}
+.ceu-title{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:400;color:var(--navy);line-height:1.2;margin-bottom:8px}
+.ceu-desc{font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:16px}
+.ceu-book-btn{display:block;text-align:center;padding:9px 16px;background:var(--navy);color:var(--white);border-radius:4px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;text-decoration:none;transition:background .2s}
+.ceu-book-btn:hover{background:var(--blue)}
+.cta-center{text-align:center;padding:20px 0 40px;border-top:1px solid var(--border)}
+
+/* CONTACT */
+.contact-main{max-width:1280px;margin:0 auto;padding:60px 28px 80px}
+.team-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:20px}
+.rep-card{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:28px 22px;text-align:center;transition:box-shadow .25s;position:relative;overflow:hidden}
+.rep-card:hover{box-shadow:0 6px 32px rgba(0,0,0,.1)}
+.rep-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(to right,var(--navy),var(--blue))}
+.rep-avatar{width:64px;height:64px;border-radius:50%;background:var(--light);margin:0 auto 14px;display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:24px;color:var(--navy);font-weight:400}
+.rep-name{font-size:14px;font-weight:700;color:var(--navy);margin-bottom:4px}
+.rep-title{font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:16px}
+.rep-contacts{display:flex;flex-direction:column;gap:6px}
+.rep-contact{display:flex;align-items:center;justify-content:center;gap:6px;font-size:11px;color:var(--muted);text-decoration:none;transition:color .2s}
+.rep-contact:hover{color:var(--blue)}
+
+/* FOOTER */
+footer{background:var(--navy);padding:40px 28px}
+.footer-inner{max-width:1280px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap}
+.footer-logo img{height:28px;width:auto;filter:brightness(10);opacity:.4}
+.footer-text{font-size:11px;color:rgba(255,255,255,.25);line-height:1.6}
+.footer-links{display:flex;gap:20px}
+.footer-link{font-size:11px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.25);text-decoration:none;transition:color .2s}
+.footer-link:hover{color:rgba(255,255,255,.7)}
+
+@media(max-width:768px){
+  .nav-tabs{display:none}
+  .hero-stats{gap:20px}
+  .mfg-visual{height:160px}
+  .mfg-label-actions{display:none}
+}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.mfg-card{animation:fadeUp .4s ease both}
+.masonry{columns:3;column-gap:10px}
+@media(max-width:900px){.masonry{columns:2}}
+@media(max-width:560px){.masonry{columns:1}}
+.gallery-item{animation:fadeUp .3s ease both;position:relative;overflow:hidden;break-inside:avoid;margin-bottom:10px;border-radius:6px;cursor:pointer}
+.gallery-item img{width:100%;height:auto;display:block;object-fit:cover;transition:transform .5s ease}
+.gallery-item:hover img{transform:scale(1.04)}
+.ceu-card{animation:fadeUp .35s ease both}
+.rep-card{animation:fadeUp .3s ease both}
+/* Leaflet popup */
+.mbsi-popup .leaflet-popup-content-wrapper{border-radius:8px;box-shadow:0 8px 32px rgba(0,0,0,.18);border:1px solid var(--border);padding:0;overflow:hidden}
+.mbsi-popup .leaflet-popup-content{margin:16px 18px;font-family:'Montserrat',sans-serif}
+.mbsi-popup .leaflet-popup-tip{background:var(--white)}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a class="nav-logo" href="https://www.metrobuilding.biz" target="_blank">
+      <img src="https://static.wixstatic.com/media/4aed41_f75a21b764f440908c134cc6f123b48b~mv2.png/v1/fill/w_382,h_124,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/MBSI%20Logo%20-%20H.png" alt="MBSI" onerror="this.style.display='none'">
+    </a>
+    <div class="nav-tabs">
+      <button class="nav-tab active" onclick="showTab('library',this)">Document Library</button>
+      <button class="nav-tab" onclick="showTab('gallery',this)">Project Gallery</button>
+      <button class="nav-tab" onclick="showTab('map',this)">Project Map</button>
+      <button class="nav-tab" onclick="showTab('ceu',this)">CEU / Lunch &amp; Learn</button>
+      <button class="nav-tab" onclick="showTab('contact',this)">Our Team</button>
+    </div>
+    <div class="nav-right">
+      <a class="nav-site-link" href="https://www.metrobuilding.biz" target="_blank">metrobuilding.biz</a>
+      <div class="nav-divider"></div>
+      <a class="nav-linecard" href="https://app.box.com/s/e6uoyzy4ianqen50i6kihogb5ljlcrlh" target="_blank" download>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Line Card
+      </a>
+      <a class="nav-cta" href="/cdn-cgi/l/email-protection#82e3eee7fac2efe7f6f0ede0f7ebeee6ebece5ace0ebf8">Contact Us</a>
+    </div>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="hero-bg"><img src="https://raw.githubusercontent.com/MBSI-Reps/mbsi-resource-library/main/images/nyc%20skyline.jpg" alt="" aria-hidden="true"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-inner">
+    <div class="hero-content">
+      <div class="hero-kicker">Metro Building Solutions</div>
+      <h1>Specify beautiful.<br><em>Build with confidence.</em></h1>
+      <p class="hero-sub">The complete technical resource library for architects, specifiers, and design professionals working with MBSI's curated portfolio of building envelope systems.</p>
+      <div class="hero-actions">
+        <button class="hero-btn hero-btn-primary" onclick="showTab('library',document.querySelector('.nav-tab'))">Browse Documents</button>
+        <button class="hero-btn hero-btn-outline" onclick="showTab('gallery',document.querySelectorAll('.nav-tab')[1])">View Projects</button>
+        <button class="hero-btn hero-btn-outline" onclick="showTab('ceu',document.querySelectorAll('.nav-tab')[2])">Schedule a CEU</button>
+        <a href="https://app.box.com/s/e6uoyzy4ianqen50i6kihogb5ljlcrlh" target="_blank" style="display:inline-flex;align-items:center;gap:5px;text-decoration:none;color:rgba(255,255,255,.45);font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;font-family:'Montserrat',sans-serif;transition:color .2s;margin-left:4px" onmouseover="this.style.color='rgba(200,168,75,.9)'" onmouseout="this.style.color='rgba(255,255,255,.45)'">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Line Card
+        </a>
+      </div>
+      <div class="hero-stats">
+        <div><div class="stat-n" id="statMfgs">14</div><div class="stat-l">Manufacturers</div></div>
+        <div><div class="stat-n" id="statDocs">0</div><div class="stat-l">Documents</div></div>
+        <div><div class="stat-n">35+</div><div class="stat-l">Projects</div></div>
+        <div><div class="stat-n">NY/NJ</div><div class="stat-l">Coverage Area</div></div>
+        <div><div class="stat-n">AIA</div><div class="stat-l">CEU Provider</div></div>
+      </div>
+    </div>
+  </div>
+  
+</div>
+
+<!-- LIBRARY TAB -->
+<div id="libraryPanel" class="tab-panel active">
+  <div class="filter-bar">
+    <div class="filter-inner">
+      <div class="search-wrap">
+        <svg class="si-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input id="si" type="text" placeholder="Search docs&hellip;" oninput="filterLib()">
+      </div>
+      <div class="vd"></div>
+      <div class="chips" id="chips">
+        <button class="chip on" onclick="setFilter('all',this)">All</button>
+      </div>
+    </div>
+  </div>
+  <div class="main">
+    <div class="count" id="cnt"></div>
+    <div id="lib"></div>
+    <div id="noRes" class="no-res hidden"><h3>No results found</h3><p>Try a different search or filter</p></div>
+  </div>
+</div>
+
+<!-- GALLERY TAB -->
+<div id="galleryPanel" class="tab-panel">
+  <div class="gallery-bar">
+    <div class="gallery-bar-inner">
+      <span style="font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)">Material:</span>
+      <div class="chips" id="galleryChips">
+        <button class="chip on" onclick="setGalleryFilter('all',this)">All</button>
+        <button class="chip" onclick="setGalleryFilter('metal',this)">Metal</button>
+        <button class="chip" onclick="setGalleryFilter('fiber-cement',this)">Fiber Cement</button>
+        <button class="chip" onclick="setGalleryFilter('terracotta',this)">Terracotta</button>
+        <button class="chip" onclick="setGalleryFilter('brick',this)">Brick</button>
+        <button class="chip" onclick="setGalleryFilter('wood',this)">Wood</button>
+        <button class="chip" onclick="setGalleryFilter('slate',this)">Slate</button>
+      </div>
+    </div>
+  </div>
+  <div class="gallery-main">
+    <div class="masonry" id="galleryGrid"></div>
+  </div>
+</div>
+
+<!-- LIGHTBOX -->
+<div id="lightbox" onclick="closeLightboxBg(event)">
+  <div class="lb-inner">
+    <button class="lb-close" onclick="closeLightbox()">&#x2715;</button>
+    <img class="lb-img" id="lbImg" src="" alt="">
+    <div class="lb-info">
+      <div>
+        <div class="lb-mfg" id="lbMfg"></div>
+        <div class="lb-desc" id="lbDesc"></div>
+      </div>
+      <button class="lb-docs-btn" id="lbDocsBtn">View Documents &rarr;</button>
+    </div>
+  </div>
+</div>
+
+<!-- MAP TAB -->
+<div id="mapPanel" class="tab-panel">
+  <div style="background:var(--white);border-bottom:1px solid var(--border);padding:12px 28px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;position:sticky;top:64px;z-index:200">
+    <span style="font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)">Filter:</span>
+    <div class="chips" id="mapChips">
+      <button class="chip on" onclick="filterMap('all',this)">All Projects</button>
+      <button class="chip" onclick="filterMap('metal',this)">Metal / ACM</button>
+      <button class="chip" onclick="filterMap('fiber-cement',this)">Fiber Cement</button>
+      <button class="chip" onclick="filterMap('terracotta',this)">Terracotta</button>
+      <button class="chip" onclick="filterMap('brick',this)">Brick</button>
+      <button class="chip" onclick="filterMap('wood',this)">Wood / HPL</button>
+      <button class="chip" onclick="filterMap('slate',this)">Slate</button>
+    </div>
+  </div>
+  <div id="projectMap" style="width:100%;height:calc(100vh - 130px);min-height:500px"></div>
+</div>
+
+<!-- CEU TAB -->
+<div id="ceuPanel" class="tab-panel">
+  <div class="ceu-main">
+    <div class="section-header">
+      <h2>Continuing Education<br><em>Lunch &amp; Learn Programs</em></h2>
+      <p>MBSI delivers AIA-accredited CEU presentations for architects, specifiers, and design professionals. We bring lunch and the expertise &mdash; contact us to schedule a program for your firm.</p>
+    </div>
+    <div class="ceu-grid" id="ceuGrid"></div>
+    <div class="cta-center">
+      <p style="font-size:13px;color:var(--muted);margin-bottom:16px">Ready to schedule a program for your team?</p>
+      <a href="/cdn-cgi/l/email-protection#72131e170a321f1706001d10071b1e161b1c155c101b084d010710181711064f3137275740425740345740423e071c111a5740425740445740423e1713001c5740422017030717010654101d160b4f3a1b574042331e170a5740315742335742332517574045165740421e1b1917574042061d57404201111a1716071e17574042135740423e071c111a5740425740445740423e1713001c5c574233574233341b001f57413357423322001714170000171657404236130617574034261b1f17574133574233330606171c16171701574133574233261d021b115740421d145740423b1c061700170106574133" class="nav-cta" style="display:inline-block;padding:12px 28px;font-size:12px">Schedule a Presentation &rarr;</a>
+    </div>
+  </div>
+</div>
+
+<!-- CONTACT TAB -->
+<div id="contactPanel" class="tab-panel">
+  <div class="contact-main">
+    <div class="section-header">
+      <h2>Meet the<br><em>MBSI Team</em></h2>
+      <p>Building envelope specialists serving architects, specifiers, and contractors across New York and New Jersey.</p>
+    </div>
+    <div class="team-grid" id="teamGrid"></div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-logo"><img src="https://static.wixstatic.com/media/4aed41_f75a21b764f440908c134cc6f123b48b~mv2.png/v1/fill/w_382,h_124,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/MBSI%20Logo%20-%20H.png" alt="MBSI" onerror="this.style.display='none'"></div>
+    <div class="footer-text">&copy; 2025 Metro Building Solutions Inc. &nbsp;&middot;&nbsp; NY &amp; NJ Building Envelope Specialists</div>
+    <div class="footer-links">
+      <a class="footer-link" href="https://www.metrobuilding.biz" target="_blank">Website</a>
+      <a class="footer-link" href="/cdn-cgi/l/email-protection#264f484049664b4352544944534f4a424f484108444f5c">Contact</a>
+    </div>
+  </div>
+</footer>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+const BASE_IMG='https://raw.githubusercontent.com/MBSI-Reps/mbsi-resource-library/main/images/';
+const MFG_IMGS={
+  'Argeton':    BASE_IMG+'argeton/DE_MKT_PHO_REF_ARG_London_StIves_03.jpg',
+  'Swisspearl': BASE_IMG+'swisspearl/02_swisspearl_dcinternationalschool.jpg',
+  'Alucobond':  BASE_IMG+'alucobond/ALUCOBOND_hero.jpg',
+  'Corium':     BASE_IMG+'corium/UK_MKT_PHO_REF_COR_160_Old_Street_Corium (16).jpg',
+  'aPlank':     BASE_IMG+'aplank/alvista-rise-03.jpg',
+};
+const MFG_GRADIENTS={
+  'Alucobond':'linear-gradient(135deg,#1a3a5c 0%,#2d6a9f 60%,#c8a84b 100%)',
+  'aPlank':'linear-gradient(135deg,#162636 0%,#1f4d70 55%,#3a7ca5 100%)',
+  'Argeton':'linear-gradient(135deg,#5c2d0a 0%,#c87941 55%,#e8b87a 100%)',
+  'Barrett':'linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%)',
+  'Corium':'linear-gradient(135deg,#5a1a0a 0%,#8b3a2a 55%,#c0694a 100%)',
+  'DuPont':'linear-gradient(135deg,#0d2137 0%,#1a4a8a 55%,#2d7abf 100%)',
+  'Eco Cladding':'linear-gradient(135deg,#1a3320 0%,#2d7a4f 55%,#4aaa78 100%)',
+  'Envel':'linear-gradient(135deg,#1a1a28 0%,#2d2d4a 50%,#4a4a7a 100%)',
+  'Knight Wall Systems':'linear-gradient(135deg,#0d1f2d 0%,#1a3a5c 55%,#c8a84b 100%)',
+  'Komproment':'linear-gradient(135deg,#1f2a1f 0%,#3a4a3a 50%,#6b7a6b 100%)',
+  'MortarNet':'linear-gradient(135deg,#2a1f1a 0%,#5c3d2e 55%,#8b6a50 100%)',
+  'Parklex / Prodema':'linear-gradient(135deg,#2a1f0a 0%,#6b4f2a 55%,#a07040 100%)',
+  'Swisspearl':'linear-gradient(135deg,#1a2a3a 0%,#2d4a6a 55%,#4a7aaa 100%)',
+  'Polyglass':'linear-gradient(135deg,#1a0a00 0%,#4a1f00 50%,#8b3a00 100%)',
+};
+const SUBS={
+  'Alucobond':'Aluminum Composite Material (ACM) Rainscreen Panels',
+  'aPlank':'Extruded Aluminum Plank & Framing System',
+  'Argeton':'Terracotta Rainscreen Cladding',
+  'Barrett':'Roofing Membranes, Waterproofing & Green Roof Systems',
+  'Corium':'Thin Brick Rainscreen Cladding',
+  'DuPont':'Structural Insulated Sheathing & Continuous Insulation',
+  'Eco Cladding':'Aluminum & Stainless Steel Subframing Systems',
+  'Envel':'Ultra-High Performance Concrete (UHPC) Facade Panels',
+  'Knight Wall Systems':'Thermally Broken Cladding Attachment & Subframing',
+  'Komproment':'Fiber Cement, Slate & Phenolic Rainscreen',
+  'MortarNet':'Masonry Drainage, Venting & Flashing',
+  'Parklex / Prodema':'Natural Wood & HPL Rainscreen Panels',
+  'Swisspearl':'Fibre Cement Rainscreen Panels',
+  'Polyglass':'Modified Bitumen Roofing, Waterproofing & Air Barrier Systems',
+};
+const SPECS={
+  'aPlank':'https://app.box.com/s/21i6470oknixu7p5pn8aqs6ivlc1f5qe',
+  'Argeton':'https://app.box.com/s/z2bze7tcm25z6wpdfpq93wixm2o0h4d1',
+  'Barrett':'https://app.box.com/s/8jrrrtwsf7nhcnwa1aht56vaxreel5e2',
+  'DuPont':'https://app.box.com/s/vwgfadmh1mzfm19zgqjg2ujjxiwvzm0p',
+  'Knight Wall Systems':'https://app.box.com/s/gjvnlj3tic06g0vgwmawz8x9vf96lcff',
+  'Swisspearl':'https://app.box.com/s/jh9vjui2rgy7t3o3xjll8cqymo4lh4up',
+};
+const TYPES={
+  'Alucobond':['new','high','low'],
+  'aPlank':['new','reno','high','low'],
+  'Argeton':['new','high','low'],
+  'Barrett':['new','reno','high','low'],
+  'Corium':['new','reno','high','low'],
+  'DuPont':['new','reno','high','low'],
+  'Eco Cladding':['new','reno','high','low'],
+  'Envel':['new','reno','low'],
+  'Knight Wall Systems':['new','reno','high','low'],
+  'Komproment':['new','reno','low'],
+  'MortarNet':['new','reno','high','low'],
+  'Parklex / Prodema':['new','reno','low'],
+  'Swisspearl':['new','reno','high','low'],
+  'Polyglass':['new','reno','high','low'],
+};
+const BADGES={'aPlank':'new','Knight Wall Systems':'featured','DuPont':'featured','Swisspearl':'new'};
+const RELATED={
+  'Alucobond':['Knight Wall Systems','DuPont','Eco Cladding'],
+  'aPlank':['Knight Wall Systems','DuPont','Eco Cladding'],
+  'Argeton':['Knight Wall Systems','DuPont','Eco Cladding'],
+  'Barrett':['Knight Wall Systems','DuPont'],
+  'Corium':['MortarNet','DuPont','Knight Wall Systems'],
+  'DuPont':['Knight Wall Systems','MortarNet'],
+  'Eco Cladding':['Alucobond','Swisspearl','Argeton'],
+  'Envel':['Knight Wall Systems','DuPont'],
+  'Knight Wall Systems':['Alucobond','Swisspearl','aPlank','Argeton'],
+  'Komproment':['Knight Wall Systems','DuPont'],
+  'MortarNet':['Corium','DuPont'],
+  'Parklex / Prodema':['Knight Wall Systems','DuPont'],
+  'Swisspearl':['Eco Cladding','Knight Wall Systems','DuPont'],
+  'Polyglass':['Barrett','DuPont','MortarNet'],
+};
+const DOCS=[
+  {mfg:'Alucobond',docs:[
+    {n:'Product Brochure',u:'https://app.box.com/s/ps0umimengpvpaso8c6wm07q0z493jf2'},
+    {n:'Color Brochure',u:'https://app.box.com/s/eg452e7xhkljb8h7imuuzhauw147o50q'},
+    {n:'PLUS Tech Data Sheet',u:'https://app.box.com/s/rmxdmlv8327fcpu2aa4ys61xvm125627'},
+    {n:'Rainscreen Details',u:'https://app.box.com/s/ly7zgbia0cyj921qddg779g71dagjo9k'},
+    {n:'Axcent Tech Data',u:'https://app.box.com/s/7mt1cade9801psl2vsy9jxqdw2xxau99'},
+    {n:'EasyFix Sales Sheet',u:'https://app.box.com/s/03b20lgmoo6kcdcm7nuaghybrkt26e22'},
+    {n:'Face-Fastened Product Data',u:'https://app.box.com/s/qgng7ouqnlxumvcpim3zs5hcakcdtpw2'},
+  ]},
+  {mfg:'aPlank',groups:[
+    {label:'aPlank — Extruded Aluminum Plank Cladding',docs:[
+      {n:'Product Brochure',u:'https://app.box.com/s/asx2q4hhex86i25cvs53205ga8tchppp',badge:'new'},
+      {n:'Color Brochure',u:'https://app.box.com/s/ax214sikuftb83iy5pgtflbmopmtvu8x'},
+      {n:'Guide Specification 07 46 16',u:'https://app.box.com/s/21i6470oknixu7p5pn8aqs6ivlc1f5qe'},
+      {n:'System Info',u:'https://app.box.com/s/eyop49dys7r3it016p5mq0p0bkawvq04'},
+      {n:'Profile Library',u:'https://app.box.com/s/nfic2v16p8okw8hacfkzm8vu81pa2bde'},
+      {n:'Typical Details',u:'https://app.box.com/s/amwpxmvcyvyft6mvxmz3584nohawja1e'},
+    ]},
+    {label:'aFrame — Aluminum Framing System',docs:[
+      {n:'Product Brochure',u:'https://app.box.com/s/sgkxvxc5ebbmzfzqjjqcf1msv8ew71an'},
+      {n:'System Info',u:'https://app.box.com/s/3rmgz5idluglbtglv8skaqm4e5ioxkqs'},
+      {n:'Typical Details',u:'https://app.box.com/s/ygigimr896jkhz2e1ew8ulnagg41jwg6'},
+      {n:'Components',u:'https://app.box.com/s/umbq78yvtrn7bkhptfnzw4xisvqy0659'},
+    ]},
+  ]},
+  {mfg:'Argeton',docs:[
+    {n:'Product Brochure',u:'https://app.box.com/s/eyuyrp0vu3top83q83h7qsosv15w6ck3'},
+    {n:'Die Profiles',u:'https://app.box.com/s/rnkg4bw1zi13qy3c0fputw7ieq5fr8ca'},
+    {n:'Technical Data',u:'https://app.box.com/s/8iv78odaqciurje2n0ruftgg5z084u4k'},
+    {n:'Horizontal Tile Details',u:'https://app.box.com/s/vuobgt4f7ozegquk44w57v7ptz7o4s2e'},
+    {n:'Vertical Tile Details',u:'https://app.box.com/s/htm2gct0j3uaa34k028n8cmeu5omysub'},
+    {n:'Guide Specification',u:'https://app.box.com/s/z2bze7tcm25z6wpdfpq93wixm2o0h4d1'},
+  ]},
+  {mfg:'Barrett',groups:[
+    {label:'Ram Tough 250 — Aluminum Wall Panels',docs:[
+      {n:'Product Brochure',u:'https://app.box.com/s/mikg60qwqq00w0w67r6bhoyjwb763oxp'},
+      {n:'Technical Data Sheets',u:'https://app.box.com/s/l7qrb6ngkrpkm2sw7g9by1gg11m4ha60'},
+      {n:'Installation Guidelines',u:'https://app.box.com/s/vpxugxs4avegcg3e2gun6gbhmco25l4r'},
+      {n:'Product List',u:'https://app.box.com/s/9u29zg8efbpm93anq27rnashamzjuqbz'},
+      {n:'Complete Systems Booklet',u:'https://app.box.com/s/hn4jws4c6iy29fe5o4d8paf5r0ciprq2'},
+    ]},
+    {label:"Black Pearl — Standing Seam Metal",docs:[
+      {n:'Product Brochure',u:'https://app.box.com/s/1qerb5fe1crrhxlgywmzmw5w0ryqr4om'},
+      {n:'Installation Guide',u:'https://app.box.com/s/g3tvcgs1kmf0s56flgow1l9ptvr9ctfm'},
+      {n:'Guide Specification',u:'https://app.box.com/s/8jrrrtwsf7nhcnwa1aht56vaxreel5e2'},
+      {n:'Full Detail Set',u:'https://app.box.com/s/8q1sgl0bs44gobpsq0iqk38fnvr8xti5'},
+      {n:"Foreman's Guide",u:'https://app.box.com/s/w1czzxbted3wsuv6szwskzwkzjq1v14t'},
+    ]},
+  ]},
+  {mfg:'Corium',docs:[
+    {n:'Product Brochure',u:'https://app.box.com/s/lg24pviveraqj0p2sblwkjeu1v2loq10'},
+    {n:'Dimensional Tile Guide',u:'https://app.box.com/s/2p0vngfkpi0t5iu3uid94zqi35nxbyyh'},
+  ]},
+  {mfg:'DuPont',groups:[
+    {label:'ArmorWall Plus — Structural Insulated Sheathing',docs:[
+      {n:'Product Data Sheet',u:'https://app.box.com/s/24l27mstgygb30q6p68b88smygf3k9xq'},
+      {n:'Installation Guide (2026)',u:'https://app.box.com/s/27v2gsm2lyijsrxzrwmec07dc0jmi7p4',badge:'new'},
+      {n:'Fastener Guide',u:'https://app.box.com/s/trsxm4xxugs8611345ixi4jb9lfw2lsb'},
+      {n:'Benefits Overview',u:'https://app.box.com/s/zlbsotdqnjamii3v0636eq1sj85bn8sh'},
+      {n:'ICC-ES ESL-1442 Listing',u:'https://app.box.com/s/djghrseddw8udf0nrz48lpp716xvvij6'},
+      {n:'10-Year Warranty',u:'https://app.box.com/s/0vo1mresvpas94h9buoshudeebowr742'},
+      {n:'Fire Rated Handbook',u:'https://app.box.com/s/cxke9175rpstx3trtw1dw67nidt2dkcz'},
+      {n:'Safety Data Sheet',u:'https://app.box.com/s/rmavrvn9nbhl6zo0cfy5gycwqu9s2cua'},
+      {n:'Sustainability Flyer',u:'https://app.box.com/s/h7imhx7k710bv7bj85b4lqzs9o5rat0i'},
+    ]},
+    {label:'Thermax — Continuous Insulation',docs:[
+      {n:'513 Technical Guide',u:'https://app.box.com/s/6csxa33g1jjl9el81qlm9kfe5u1mreki'},
+      {n:'Wall System Details',u:'https://app.box.com/s/vmx2ss6dtczcqh39lub0q68979ojvsjq'},
+      {n:'Commercial Brochure',u:'https://app.box.com/s/nrxiocvps3ogkg01ni12g06k7lztxrb2'},
+      {n:'Guide Specification',u:'https://app.box.com/s/vwgfadmh1mzfm19zgqjg2ujjxiwvzm0p'},
+    ]},
+  ]},
+  {mfg:'Eco Cladding',docs:[
+    {n:'Product Brochure',u:'https://app.box.com/s/cpcpyddb3zn159onrd0fnkdvs3d2onp0'},
+    {n:'Sigma Intro Brochure',u:'https://app.box.com/s/85ou32t89lntrdl3tct7osw3owbb88q3'},
+    {n:'Non-Combustible Subframing Tech Note',u:'https://app.box.com/s/svzormd1yibgdc49y5owjpvz4xvf93x1'},
+    {n:'Sigma PH Certificate',u:'https://app.box.com/s/egmz659h3ns7w2cw84kl29s8stp3lxli'},
+  ]},
+  {mfg:'Envel',docs:[
+    {n:'Product Brochure',u:'https://app.box.com/s/d15m3wy6ase3tpppd7s74m7oi5hp0p5v'},
+    {n:'Concealed Details',u:'https://app.box.com/s/jcflhbzpq37yol8ryt81mbaqawsvebwg'},
+  ]},
+  {mfg:'Knight Wall Systems',groups:[
+    {label:'CI / HCI — Continuous Insulation Bracket',docs:[
+      {n:'CI & HCI Brochure',u:'https://app.box.com/s/w0wwh03n6couquauql12des1tyej68q6'},
+      {n:'CI Guide Details',u:'https://app.box.com/s/miks6hkhtbpqqa4j3pnwl851mxm0ovdj'},
+      {n:'HCI Bracket CB110',u:'https://app.box.com/s/xy22whmidrhyi6xxov4m1p1u9e5je2xu'},
+      {n:'CI Guide Specification',u:'https://app.box.com/s/gjvnlj3tic06g0vgwmawz8x9vf96lcff'},
+      {n:'HD Bracket Data Sheet',u:'https://app.box.com/s/httkdf0mt0h0qmqj1bb7iob3kxe6bp5q'},
+    ]},
+    {label:'ThermaZee — Thermal Bridging Solution',docs:[
+      {n:'Product Intro',u:'https://app.box.com/s/4sgqku2zwwek634vtnafw453ipssbdc9'},
+      {n:'Data Sheet',u:'https://app.box.com/s/w4nncwmgnvzigo64iwqogtkzmxnrd39g'},
+      {n:'Design & Installation Guide',u:'https://app.box.com/s/fefo9ktkum22db9ng6734v7h7s0zhgor'},
+      {n:'Horizontal Details',u:'https://app.box.com/s/3thf88evzf5ai3gc171dp7ufkv0ezx29'},
+      {n:'Vertical Details',u:'https://app.box.com/s/oe71rnnpv1bjslegrb5zfkfx344mpe2k'},
+      {n:'Thermal Analysis',u:'https://app.box.com/s/shxybnhtievqp1gd422r6t61nr7h3f50'},
+    ]},
+    {label:'MFI — Masonry Fastening Insulation',docs:[
+      {n:'Product Info (2026)',u:'https://app.box.com/s/cvws8xz9vz1vi4v5odtg7kfn4g6dw8t2',badge:'new'},
+      {n:'Design & Install Guide v1.2',u:'https://app.box.com/s/6p3vonwu51fp7v0vwcdd6hykf9qo1wwk'},
+      {n:'Horizontal Details',u:'https://app.box.com/s/9gza9yhj2nwy26zb65l790y6tgdkr46d'},
+      {n:'Vertical Details (D)',u:'https://app.box.com/s/2tomi152kgd0boib5jfs90vd40okt4bl'},
+      {n:'Vertical Details (S)',u:'https://app.box.com/s/zgyiuv47p9jaq2qul6mbngw9b8g4jisj'},
+      {n:'Thermal Values',u:'https://app.box.com/s/pfmvi2ipbh1g09ymwfx9w1nmte6wxp9h'},
+    ]},
+  ]},
+  {mfg:'Komproment',docs:[
+    {n:'Facade Brochure',u:'https://app.box.com/s/qgtpqnmhqr8k7cpbnxc451j0odszxp0n'},
+    {n:'Slate Details',u:'https://app.box.com/s/vbi09nqohbgn8cotuyp5ed0fqv3vfvxw'},
+    {n:'Slate Install & Technical Data',u:'https://app.box.com/s/0890obkug4kgpe5iyb1rtrsmg8tjz55z'},
+    {n:'Arena Details',u:'https://app.box.com/s/m49q3uxj794v57szat8lzxwlnlhye4r7'},
+  ]},
+  {mfg:'MortarNet',docs:[
+    {n:'Product Brochure',u:'https://app.box.com/s/o3k53qjozxkg70dqns31459c9b16jnxw'},
+    {n:'Weepvent Submittal',u:'https://app.box.com/s/fbdt2iwta9mhp5ktmxwfezvktmdxnafj'},
+    {n:'Blockflash Submittal',u:'https://app.box.com/s/pzwcp0vg7oh1saimfs2pg83v59fw9v9i'},
+    {n:'Weepvent Installation',u:'https://app.box.com/s/gkymqtej2z4njmn03svt27oczv8bpj4h'},
+    {n:'Blockflash Installation',u:'https://app.box.com/s/2f6wy4bc1yw42nwmiqdm5d6i3efg5zu8'},
+  ]},
+  {mfg:'Parklex / Prodema',docs:[
+    {n:'Product Brochure (2025)',u:'https://app.box.com/s/qs0kexaud9li3f6qvsrqrah476tdcsi2'},
+  ]},
+  {mfg:'Swisspearl',docs:[
+    {n:'Product Brochure',u:'https://app.box.com/s/odha3vpp9yrfr0ta7gy3zvf2jnlbu143'},
+    {n:'Color Guide',u:'https://app.box.com/s/84ipbxqeykt1gqe7z177yoe8a3rtzybe'},
+    {n:'Clinar Brochure',u:'https://app.box.com/s/yrl6evtoehmns5ucf1am6c26gqlvel3m'},
+    {n:'DIM Largo',u:'https://app.box.com/s/hx2adatkybpbum4to05xhyon104blqaq'},
+    {n:'Test Approvals',u:'https://app.box.com/s/apylrlvzr9q6yu4vlani5741i006vekj'},
+    {n:'EPD',u:'https://app.box.com/s/tdtem29owfv28gkow7drmy3wiz6pnpnx'},
+    {n:'Generic Details',u:'https://app.box.com/s/aas0joe8uded4j85ub865ikuauzdbgc2'},
+    {n:'Reference Projects',u:'https://app.box.com/s/osw0zsrl6a9xenbyanpb0ouyg2cundjy'},
+    {n:'Guide Specification 07 42 46',u:'https://app.box.com/s/jh9vjui2rgy7t3o3xjll8cqymo4lh4up'},
+  ]},
+  {mfg:'Polyglass',docs:[
+    {n:'Product Brochure',u:'https://app.box.com/s/POLYGLASS_BROCHURE'},
+    {n:'System Guide',u:'https://app.box.com/s/POLYGLASS_SYSTEMGUIDE'},
+    {n:'Technical Data Sheet',u:'https://app.box.com/s/POLYGLASS_TDS'},
+    {n:'Guide Specification',u:'https://app.box.com/s/POLYGLASS_SPEC'},
+  ]},
+];
+const GALLERY=[
+  {mfg:'Alucobond',desc:'1600 Broadway Tower — Alucobond Plus, NYC',material:'metal',img:BASE_IMG+'alucobond/Alucobond_Plus_1600_Broadway_Tower_SLCE_Architects_New_York_City_3.jpg'},
+  {mfg:'Alucobond',desc:'57 Bond Street — Alucobond Plus, NYC',material:'metal',img:BASE_IMG+'alucobond/Alucobond_Plus_57_Bond_Street_1.jpg'},
+  {mfg:'Alucobond',desc:'Stony Brook University Residence Halls — Alucobond Plus, NY',material:'metal',img:BASE_IMG+'alucobond/Alucobond_Plus_Stony_Brook_University_Residence_Halls_Goshow_Architects_New_York_Taylor_Crothers_2.jpg'},
+  {mfg:'Alucobond',desc:'Olume Apartments — Alucobond Plus naturAL, LEED Silver',material:'metal',img:BASE_IMG+'alucobond/Olume_Apartments_Arquitectectonica_Keith_Panel_Systems_Alucobond_Plus_naturAL_LEED_Silver_Certification_Photography_Daniel_Lunghi_9.jpg'},
+  {mfg:'Swisspearl',desc:'DC International School — Clinar Fibre Cement',material:'fiber-cement',img:BASE_IMG+'swisspearl/02_swisspearl_dcinternationalschool.jpg'},
+  {mfg:'Swisspearl',desc:'DC International School — Detail View',material:'fiber-cement',img:BASE_IMG+'swisspearl/03_swisspearl_dcinternationalschool.jpg'},
+  {mfg:'Swisspearl',desc:"Martha's Table — Swisspearl Facade",material:'fiber-cement',img:BASE_IMG+"swisspearl/7.05.18-Martha'sTable-9.jpg"},
+  {mfg:'Swisspearl',desc:'Hausamsee — Swisspearl Cladding',material:'fiber-cement',img:BASE_IMG+'swisspearl/08_swisspearl_hausamsee.jpg'},
+  {mfg:'Swisspearl',desc:'Simpson Project — Fibre Cement Panels',material:'fiber-cement',img:BASE_IMG+'swisspearl/Simpson 1.jpg'},
+  {mfg:'Corium',desc:'160 Old Street — Corium thin brick rainscreen, London',material:'brick',img:BASE_IMG+'corium/UK_MKT_PHO_REF_COR_160_Old_Street_Corium (16).jpg'},
+  {mfg:'Corium',desc:'160 Old Street — detail view',material:'brick',img:BASE_IMG+'corium/UK_MKT_PHO_REF_COR_160_Old_Street_Corium (28).jpg'},
+  {mfg:'Corium',desc:'Belmont House — Corium thin brick facade',material:'brick',img:BASE_IMG+'corium/UK_MKT_PHO_REF_FAC_COR_Belmont_House (35).jpg'},
+  {mfg:'Argeton',desc:'St. Ives House, London — Terracotta Rainscreen',material:'terracotta',img:BASE_IMG+'argeton/DE_MKT_PHO_REF_ARG_London_StIves_03.jpg'},{mfg:'Argeton',desc:'71 Camden Street — Terracotta Facade',material:'terracotta',img:BASE_IMG+'argeton/71-Camen-Street-24-Large.webp'},{mfg:'Argeton',desc:'Wolfshof Project — Terracotta Cladding',material:'terracotta',img:BASE_IMG+'argeton/AT_MKT_PHO_REF_ARG_Wolfshof (13).jpg'},
+  {mfg:'Komproment',desc:'Corporate HQ, natural wood panel facade — Manhattan',material:'slate',img:'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&h=500&fit=crop'},
+  {mfg:'aPlank',desc:'Low-rise mixed use, aluminum plank & aFrame system — Jersey City',material:'metal',img:'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800&h=500&fit=crop'},
+  {mfg:'Barrett',desc:'Industrial campus, Ram Tough 250 metal wall panels',material:'metal',img:'https://images.unsplash.com/photo-1587293852726-70cdb56c2866?w=800&h=500&fit=crop'},
+  {mfg:'Eco Cladding',desc:'Healthcare facility, aluminum subframing system — NY',material:'metal',img:'https://images.unsplash.com/photo-1518005020951-eccb494ad742?w=800&h=500&fit=crop'},
+  {mfg:'Envel',desc:'Luxury residential, concealed fastener aluminum panels',material:'metal',img:'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=800&h=500&fit=crop'},
+  {mfg:'Knight Wall Systems',desc:'Office tower, ThermaZee continuous insulation brackets',material:'metal',img:'https://images.unsplash.com/photo-1494522855154-9297ac14b55f?w=800&h=500&fit=crop'}
+];
+const TEAM=[
+  {name:'Dennis Italia',title:'President',email:'ditalia@metrobuilding.biz',phone:'(908) 284-1676',initials:'DI'},
+  {name:'Carlos Lopez-Oña',title:'Building Envelope Specialist',email:'carlos@metrobuilding.biz',phone:'(908) 284-1676',initials:'CL'},
+  {name:'Alex Moshenberg',title:'Building Envelope Specialist',email:'alex@metrobuilding.biz',phone:'917-584-7538',initials:'AM'},
+  {name:'Brian Graham',title:'Building Envelope Specialist',email:'bgraham@metrobuilding.biz',phone:'(908) 284-1676',initials:'BG'},
+  {name:'Frank Ciszkowski',title:'Building Envelope Specialist',email:'frank@metrobuilding.biz',phone:'(908) 284-1676',initials:'FC'},
+  {name:'Mariann Long',title:'Office Manager',email:'mlong@metrobuilding.biz',phone:'(908) 284-1676',initials:'ML'},
+];
+const CEUS=[
+  // AIA Accredited — DuPont / Dennis Italia
+  {title:'Technical Advances in Structural Insulated Sheathing',hours:'1.0 AIA LU/HSW',presenter:'Dennis Italia (MBSI) or Chip Bisignaro (DuPont)',desc:'Air and moisture barrier systems, structural insulated sheathing performance, NFPA 285 compliance, and code-required continuous insulation in commercial wall assemblies.',topics:['Air Barrier','Moisture','HSW','DuPont'],grad:'linear-gradient(135deg,#0d2137 0%,#1a4a8a 60%,#2d7abf 100%)'},
+  {title:'Sustainable Roofing System Design',hours:'1.0 AIA LU/HSW',presenter:'Dennis Italia or Carlos Lopez-Oña (MBSI)',desc:'Material selection, energy performance, and code compliance for commercial low-slope and steep-slope roofing systems. Covers sustainability metrics and product comparisons.',topics:['Roofing','Sustainability','Energy','HSW'],grad:'linear-gradient(135deg,#0d2a1a 0%,#1a5c38 60%,#2d8a56 100%)'},
+  // AIA Accredited — Barrett / Carlos
+  {title:'Plaza Deck Waterproofing',hours:'1.0 AIA LU/HSW',presenter:'Carlos Lopez-Oña (MBSI)',desc:'Design and detailing of below-grade and above-grade plaza waterproofing assemblies including drainage, protection board, and long-term performance considerations.',topics:['Waterproofing','Plaza','Detail','HSW'],grad:'linear-gradient(135deg,#1a1a2e 0%,#2d2d5c 60%,#4040a0 100%)'},
+  // AIA Accredited — Polyglass / Carlos
+  {title:'Modified Bitumen Roofing – Simplified Approach to Commercial Low Slope Roofing',hours:'1.0 AIA LU/HSW',presenter:'Carl Nicholls (Polyglass) & Carlos Lopez-Oña (MBSI)',desc:'Practical guide to specifying and detailing modified bitumen roofing. Covers membrane types, application methods, flashing, and code compliance for low-slope commercial projects.',topics:['Roofing','Low Slope','Bitumen','HSW'],grad:'linear-gradient(135deg,#1a0d00 0%,#5c3000 60%,#c87000 100%)'},
+  // AIA Accredited — Polyglass / Carlos
+  {title:'Below Grade & Blindside Waterproofing',hours:'1.0 AIA LU/HSW',presenter:'Carlos Lopez-Oña (MBSI)',desc:'Foundation waterproofing systems for below-grade and blindside conditions. Covers product selection, drainage composites, and coordination with structural systems.',topics:['Waterproofing','Below Grade','Foundation','HSW'],grad:'linear-gradient(135deg,#0d1a2e 0%,#1a3a6a 60%,#2d5ca0 100%)'},
+  // AIA Accredited — Clear Corp / Jason Clear
+  {title:'Protected Membrane Roof (PMR) Systems for Low-Slope Roof Assemblies',hours:'1.0 AIA LU/HSW',presenter:'Jason Clear – President, T Clear Corporation',desc:'Design principles for inverted (PMR) roof assemblies: insulation above membrane, thermal performance, drainage efficiency, and green roof compatibility.',topics:['Roofing','PMR','Thermal','HSW'],grad:'linear-gradient(135deg,#0d2a1a 0%,#1a4a30 60%,#2d7a50 100%)'},
+  // AIA Accredited — MortarNet / Carlos
+  {title:'Designing a Sustainable Masonry Cavity Wall Envelope',hours:'1.0 AIA LU/HSW',presenter:'Carlos Lopez-Oña (MBSI)',desc:'Best practices for drainage, flashing, and weep vent placement in contemporary masonry cavity wall construction. Failure modes, material selection, and specification guidance.',topics:['Masonry','Drainage','Cavity Wall','HSW'],grad:'linear-gradient(135deg,#2a1a0a 0%,#6a3a1a 60%,#a05a2a 100%)'},
+  // AIA Accredited — Alucobond / Brian
+  {title:'Aluminum Composite Material – FR: Manufacturing, Installation, and Sustainability',hours:'1.0 AIA LU/HSW',presenter:'Brian Graham (MBSI)',desc:'Deep dive into ACM panel manufacturing, fire-retardant performance, NFPA 285 compliance, sustainability attributes, and system selection for commercial facades.',topics:['ACM','Fire','Alucobond','HSW'],grad:'linear-gradient(135deg,#1a2a3a 0%,#2d4a6a 60%,#4a7aaa 100%)'},
+  // AIA Accredited — Knight Wall / Alex
+  {title:'Understanding the Modern Cladding Attachment',hours:'1.0 AIA LU/HSW',presenter:'Alex Moshenberg (MBSI)',desc:'Comprehensive overview of rainscreen cladding attachment systems: continuous insulation brackets, thermal performance, structural requirements, and code compliance in NY/NJ.',topics:['CI Brackets','Thermal','Rainscreen','HSW'],grad:'linear-gradient(135deg,#0d1f2d 0%,#1a3a5c 55%,#c8a84b 100%)'},
+  // AIA Accredited — Swisspearl / Alex
+  {title:'Design Possibilities with Fiber Cement Rainscreen Panels',hours:'1.0 AIA LU/HSW',presenter:'Alex Moshenberg (MBSI)',desc:'Material science, design flexibility, and specification of fiber cement rainscreen cladding. Fire performance, sustainability, maintenance, and real-world project examples.',topics:['Fiber Cement','Rainscreen','Swisspearl','HSW'],grad:'linear-gradient(135deg,#0d1f2d 0%,#1a3a6a 55%,#4a7aaa 100%)'},
+  // AIA Accredited — Alex
+  {title:'Drained & Back-Ventilated Rainscreen Cladding Design',hours:'1.0 AIA LU/HSW',presenter:'Alex Moshenberg (MBSI)',desc:'Principles of drained and back-ventilated facade assemblies: air gap design, moisture management, subframing systems, and coordination with air barriers and insulation.',topics:['Rainscreen','Ventilation','Facade','HSW'],grad:'linear-gradient(135deg,#1a2030 0%,#2a3a50 55%,#3a5a80 100%)'},
+  // AIA Accredited — Envel / Alex
+  {title:'UHPC Rainscreen Façades and Beyond',hours:'1.0 AIA LU/HSW',presenter:'Alex Moshenberg (MBSI)',desc:'Ultra-high performance concrete panels for facade applications: material properties, achievable geometries, specification considerations, and project case studies.',topics:['UHPC','Envel','Facade','HSW'],grad:'linear-gradient(135deg,#1a1a28 0%,#2d2d4a 55%,#5a5a9a 100%)'},
+  // AIA Accredited — Corium + Argeton / Kristofer Johnson
+  {title:'Modern Masonry Rainscreen Systems',hours:'1.0 AIA LU/HSW',presenter:'Kristofer Johnson – VP, Telling Architectural Systems',desc:'Design and specification of Corium thin brick and Argeton terracotta rainscreen systems. Material performance, detailing, and comparisons to traditional masonry veneer.',topics:['Brick','Terracotta','Corium','Argeton'],grad:'linear-gradient(135deg,#3a1a0a 0%,#7a3a1a 55%,#c87041 100%)'},
+];
+const MAP_PROJECTS=[
+  {lat:40.7580,lng:-73.9855,mfg:'Alucobond',material:'metal',desc:'Times Square Area Tower',address:'Midtown Manhattan, NY',docs:[{n:'Product Brochure',u:'https://app.box.com/s/ps0umimengpvpaso8c6wm07q0z493jf2'},{n:'PLUS Tech Data Sheet',u:'https://app.box.com/s/rmxdmlv8327fcpu2aa4ys61xvm125627'}]},
+  {lat:40.6892,lng:-74.0445,mfg:'Alucobond',material:'metal',desc:'Staten Island University Hospital',address:'Staten Island, NY',docs:[{n:'Product Brochure',u:'https://app.box.com/s/ps0umimengpvpaso8c6wm07q0z493jf2'},{n:'PLUS Tech Data Sheet',u:'https://app.box.com/s/rmxdmlv8327fcpu2aa4ys61xvm125627'}]},
+  {lat:40.8448,lng:-73.8648,mfg:'Swisspearl',material:'fiber-cement',desc:'School Campus Renovation',address:'Bronx, NY',docs:[{n:'Product Brochure',u:'https://app.box.com/s/odha3vpp9yrfr0ta7gy3zvf2jnlbu143'},{n:'Guide Specification',u:'https://app.box.com/s/jh9vjui2rgy7t3o3xjll8cqymo4lh4up'}]},
+  {lat:40.7282,lng:-73.7949,mfg:'Swisspearl',material:'fiber-cement',desc:'PS 222Q Renovation',address:'Queens, NY',docs:[{n:'Product Brochure',u:'https://app.box.com/s/odha3vpp9yrfr0ta7gy3zvf2jnlbu143'},{n:'Guide Specification',u:'https://app.box.com/s/jh9vjui2rgy7t3o3xjll8cqymo4lh4up'}]},
+  {lat:40.6501,lng:-73.9496,mfg:'Corium',material:'brick',desc:'Mixed-Use Building, Flatbush',address:'Brooklyn, NY',docs:[{n:'Product Brochure',u:'https://app.box.com/s/lg24pviveraqj0p2sblwkjeu1v2loq10'},{n:'Dimensional Tile Guide',u:'https://app.box.com/s/2p0vngfkpi0t5iu3uid94zqi35nxbyyh'}]},
+  {lat:40.7282,lng:-74.0776,mfg:'aPlank',material:'metal',desc:'Mixed-Use Development',address:'Jersey City, NJ',docs:[{n:'Product Brochure',u:'https://app.box.com/s/asx2q4hhex86i25cvs53205ga8tchppp'},{n:'Guide Specification',u:'https://app.box.com/s/21i6470oknixu7p5pn8aqs6ivlc1f5qe'}]},
+  {lat:40.7440,lng:-74.0324,mfg:'Barrett',material:'metal',desc:'Mixed-Use, Hoboken Waterfront',address:'Hoboken, NJ',docs:[{n:'Ram Tough 250 Brochure',u:'https://app.box.com/s/mikg60qwqq00w0w67r6bhoyjwb763oxp'},{n:'Technical Data Sheets',u:'https://app.box.com/s/l7qrb6ngkrpkm2sw7g9by1gg11m4ha60'}]},
+  // Argeton — completed
+  {lat:40.7430,lng:-73.9953,mfg:'Argeton',material:'terracotta',desc:'Graydon Chelsea – Completed 2021',address:'128 West 23rd Street, NYC',docs:[{n:'Product Brochure',u:'https://app.box.com/s/eyuyrp0vu3top83q83h7qsosv15w6ck3'},{n:'Technical Data',u:'https://app.box.com/s/8iv78odaqciurje2n0ruftgg5z084u4k'}]},
+  {lat:40.6844,lng:-73.9754,mfg:'Argeton',material:'terracotta',desc:'Atlantic Terminal – Completed 2004',address:'139 Flatbush Ave, Brooklyn, NY',docs:[{n:'Product Brochure',u:'https://app.box.com/s/eyuyrp0vu3top83q83h7qsosv15w6ck3'},{n:'Technical Data',u:'https://app.box.com/s/8iv78odaqciurje2n0ruftgg5z084u4k'}]},
+  {lat:40.7374,lng:-73.9842,mfg:'Argeton',material:'terracotta',desc:'Learning Spring School – Completed 2010',address:'247 E 20th Street, NYC',docs:[{n:'Product Brochure',u:'https://app.box.com/s/eyuyrp0vu3top83q83h7qsosv15w6ck3'},{n:'Technical Data',u:'https://app.box.com/s/8iv78odaqciurje2n0ruftgg5z084u4k'}]},
+  {lat:40.7614,lng:-73.9490,mfg:'Argeton',material:'terracotta',desc:'3 Riverview Terrace – Recently Completed',address:'3 Riverview Terrace, NYC',docs:[{n:'Product Brochure',u:'https://app.box.com/s/eyuyrp0vu3top83q83h7qsosv15w6ck3'},{n:'Technical Data',u:'https://app.box.com/s/8iv78odaqciurje2n0ruftgg5z084u4k'}]},
+  {lat:41.5221,lng:-74.1027,mfg:'Argeton',material:'terracotta',desc:'Hudson Valley Food Bank – Completed 2025',address:'Montgomery, NY',docs:[{n:'Product Brochure',u:'https://app.box.com/s/eyuyrp0vu3top83q83h7qsosv15w6ck3'},{n:'Technical Data',u:'https://app.box.com/s/8iv78odaqciurje2n0ruftgg5z084u4k'}]},
+  {lat:40.8081,lng:-73.9498,mfg:'Argeton',material:'terracotta',desc:'One-2-Five LIVE – Completed 2013',address:'261 W 125th Street, NYC',docs:[{n:'Product Brochure',u:'https://app.box.com/s/eyuyrp0vu3top83q83h7qsosv15w6ck3'},{n:'Technical Data',u:'https://app.box.com/s/8iv78odaqciurje2n0ruftgg5z084u4k'}]},
+  {lat:40.7282,lng:-74.0776,mfg:'Argeton',material:'terracotta',desc:'380 Montgomery – Completed 2021',address:'380 Montgomery St, Jersey City, NJ',docs:[{n:'Product Brochure',u:'https://app.box.com/s/eyuyrp0vu3top83q83h7qsosv15w6ck3'},{n:'Technical Data',u:'https://app.box.com/s/8iv78odaqciurje2n0ruftgg5z084u4k'}]},
+  {lat:40.7325,lng:-74.0689,mfg:'Argeton',material:'terracotta',desc:'Rutherford Police HQ – Completed 2022',address:'Jersey City, NJ',docs:[{n:'Product Brochure',u:'https://app.box.com/s/eyuyrp0vu3top83q83h7qsosv15w6ck3'},{n:'Technical Data',u:'https://app.box.com/s/8iv78odaqciurje2n0ruftgg5z084u4k'}]},
+  // Argeton — under construction
+  {lat:40.7617,lng:-73.8257,mfg:'Argeton',material:'terracotta',desc:'PS Q388 – Construction 2025–2026',address:'23-70 Waters Edge Drive, Queens, NY',docs:[{n:'Product Brochure',u:'https://app.box.com/s/eyuyrp0vu3top83q83h7qsosv15w6ck3'},{n:'Technical Data',u:'https://app.box.com/s/8iv78odaqciurje2n0ruftgg5z084u4k'}]},
+  {lat:40.6962,lng:-73.7840,mfg:'Argeton',material:'terracotta',desc:'PS 95Q – Construction 2025–2026',address:'88-40 179th Place, Jamaica, NY',docs:[{n:'Product Brochure',u:'https://app.box.com/s/eyuyrp0vu3top83q83h7qsosv15w6ck3'},{n:'Technical Data',u:'https://app.box.com/s/8iv78odaqciurje2n0ruftgg5z084u4k'}]},
+  {lat:40.7245,lng:-74.0627,mfg:'Argeton',material:'terracotta',desc:'Hudson County Community College – Construction 2025–2026',address:'Jersey City, NJ',docs:[{n:'Product Brochure',u:'https://app.box.com/s/eyuyrp0vu3top83q83h7qsosv15w6ck3'},{n:'Technical Data',u:'https://app.box.com/s/8iv78odaqciurje2n0ruftgg5z084u4k'}]},
+  {lat:40.6669,lng:-74.2144,mfg:'Argeton',material:'terracotta',desc:'Union County Govt. Complex – Construction 2025–2026',address:'93 West Grand Street, Elizabeth, NJ',docs:[{n:'Product Brochure',u:'https://app.box.com/s/eyuyrp0vu3top83q83h7qsosv15w6ck3'},{n:'Technical Data',u:'https://app.box.com/s/8iv78odaqciurje2n0ruftgg5z084u4k'}]},
+  {lat:40.6895,lng:-74.0171,mfg:'Argeton',material:'terracotta',desc:'NY Harbor School Annex/M533 – Construction 2025–2026',address:"Governors Island, NYC",docs:[{n:'Product Brochure',u:'https://app.box.com/s/eyuyrp0vu3top83q83h7qsosv15w6ck3'},{n:'Technical Data',u:'https://app.box.com/s/8iv78odaqciurje2n0ruftgg5z084u4k'}]},
+  {lat:40.6698,lng:-73.9496,mfg:'Argeton',material:'terracotta',desc:'Maggie Walker School/IS 390K – Construction 2025–2026',address:'1224 Park Place, Brooklyn, NY',docs:[{n:'Product Brochure',u:'https://app.box.com/s/eyuyrp0vu3top83q83h7qsosv15w6ck3'},{n:'Technical Data',u:'https://app.box.com/s/8iv78odaqciurje2n0ruftgg5z084u4k'}]},
+  {lat:40.7335,lng:-73.4387,mfg:'Argeton',material:'terracotta',desc:'SUNY Farmingdale Sinclair Hall – Construction 2025',address:'Farmingdale, NY',docs:[{n:'Product Brochure',u:'https://app.box.com/s/eyuyrp0vu3top83q83h7qsosv15w6ck3'},{n:'Technical Data',u:'https://app.box.com/s/8iv78odaqciurje2n0ruftgg5z084u4k'}]},
+  {lat:40.8485,lng:-73.9146,mfg:'Argeton',material:'terracotta',desc:'Isle Hoffman House – Construction 2025–2026',address:'1760 Jerome Ave., Bronx, NY',docs:[{n:'Product Brochure',u:'https://app.box.com/s/eyuyrp0vu3top83q83h7qsosv15w6ck3'},{n:'Technical Data',u:'https://app.box.com/s/8iv78odaqciurje2n0ruftgg5z084u4k'}]},
+  {lat:40.5779,lng:-74.1502,mfg:'Argeton',material:'terracotta',desc:'PS 019 – Construction 2025–2026',address:'25 Greenleaf Ave., Staten Island, NY',docs:[{n:'Product Brochure',u:'https://app.box.com/s/eyuyrp0vu3top83q83h7qsosv15w6ck3'},{n:'Technical Data',u:'https://app.box.com/s/8iv78odaqciurje2n0ruftgg5z084u4k'}]},
+  {lat:40.6093,lng:-74.1202,mfg:'Argeton',material:'terracotta',desc:'49 Clinton – Construction 2025–2026',address:'Staten Island, NY',docs:[{n:'Product Brochure',u:'https://app.box.com/s/eyuyrp0vu3top83q83h7qsosv15w6ck3'},{n:'Technical Data',u:'https://app.box.com/s/8iv78odaqciurje2n0ruftgg5z084u4k'}]},
+  {lat:40.7576,lng:-74.0007,mfg:'Argeton',material:'terracotta',desc:'440 West 36th Street – Construction 2025–2026',address:'440 West 36th Street, NYC',docs:[{n:'Product Brochure',u:'https://app.box.com/s/eyuyrp0vu3top83q83h7qsosv15w6ck3'},{n:'Technical Data',u:'https://app.box.com/s/8iv78odaqciurje2n0ruftgg5z084u4k'}]},
+  {lat:40.7357,lng:-74.1724,mfg:'Corium',material:'brick',desc:'KIPP School',address:'Newark, NJ',docs:[{n:'Product Brochure',u:'https://app.box.com/s/lg24pviveraqj0p2sblwkjeu1v2loq10'},{n:'Dimensional Tile Guide',u:'https://app.box.com/s/2p0vngfkpi0t5iu3uid94zqi35nxbyyh'}]},
+  {lat:40.7178,lng:-74.1796,mfg:'aPlank',material:'metal',desc:'777 McCarter Highway',address:'Newark, NJ',docs:[{n:'Product Brochure',u:'https://app.box.com/s/asx2q4hhex86i25cvs53205ga8tchppp'},{n:'Guide Specification',u:'https://app.box.com/s/21i6470oknixu7p5pn8aqs6ivlc1f5qe'}]},
+  {lat:40.7587,lng:-74.2710,mfg:'Swisspearl',material:'fiber-cement',desc:'Holdrum Middle School',address:'River Vale, NJ',docs:[{n:'Product Brochure',u:'https://app.box.com/s/odha3vpp9yrfr0ta7gy3zvf2jnlbu143'},{n:'Guide Specification',u:'https://app.box.com/s/jh9vjui2rgy7t3o3xjll8cqymo4lh4up'}]},
+  {lat:40.7195,lng:-74.4154,mfg:'Knight Wall Systems',material:'metal',desc:'Lawrence Public Library',address:'Lawrenceville, NJ',docs:[{n:'CI & HCI Brochure',u:'https://app.box.com/s/w0wwh03n6couquauql12des1tyej68q6'},{n:'CI Guide Specification',u:'https://app.box.com/s/gjvnlj3tic06g0vgwmawz8x9vf96lcff'}]},
+  {lat:40.9176,lng:-73.7776,mfg:'Komproment',material:'slate',desc:'RVCC Campus Building',address:'Westchester County, NY',docs:[{n:'Facade Brochure',u:'https://app.box.com/s/qgtpqnmhqr8k7cpbnxc451j0odszxp0n'},{n:'Slate Install & Technical Data',u:'https://app.box.com/s/0890obkug4kgpe5iyb1rtrsmg8tjz55z'}]},
+  {lat:40.7614,lng:-73.9776,mfg:'Envel',material:'metal',desc:'787 11th Avenue',address:'Manhattan, NY',docs:[{n:'Product Brochure',u:'https://app.box.com/s/d15m3wy6ase3tpppd7s74m7oi5hp0p5v'},{n:'Concealed Details',u:'https://app.box.com/s/jcflhbzpq37yol8ryt81mbaqawsvebwg'}]},
+  {lat:40.3491,lng:-74.6593,mfg:'Parklex / Prodema',material:'wood',desc:'The Alice Mixed-Use',address:'Princeton, NJ',docs:[{n:'Product Brochure',u:'https://app.box.com/s/qs0kexaud9li3f6qvsrqrah476tdcsi2'}]},
+  {lat:40.9010,lng:-74.1743,mfg:'Eco Cladding',material:'metal',desc:'Healthcare Facility',address:'Wayne, NJ',docs:[{n:'Product Brochure',u:'https://app.box.com/s/cpcpyddb3zn159onrd0fnkdvs3d2onp0'},{n:'Non-Combustible Tech Note',u:'https://app.box.com/s/svzormd1yibgdc49y5owjpvz4xvf93x1'}]},
+  {lat:40.6892,lng:-73.9442,mfg:'MortarNet',material:'brick',desc:'Masonry Renovation',address:'Brooklyn, NY',docs:[{n:'Product Brochure',u:'https://app.box.com/s/o3k53qjozxkg70dqns31459c9b16jnxw'},{n:'Weepvent Submittal',u:'https://app.box.com/s/fbdt2iwta9mhp5ktmxwfezvktmdxnafj'}]},
+];
+const MAT_COLORS={
+  'metal':'#1a4a8a',
+  'fiber-cement':'#2d7a4f',
+  'terracotta':'#c87941',
+  'brick':'#8b3a2a',
+  'wood':'#6b4f2a',
+  'slate':'#4a5568',
+};
+
+let activeFilter='all',activeGalleryFilter='all';
+let leafletMap=null,mapMarkers=[],activeMapFilter='all';
+
+function badge(name){
+  const n=name.toLowerCase();
+  if(n.includes('spec')||n.includes('specification'))return['SPEC','ic-spec'];
+  if(n.includes('detail')||n.includes('dwg')||n.includes('drawing'))return['DWG','ic-dwg'];
+  if(n.includes('data')||n.includes('thermal')||n.includes('technical')||n.includes('submittal')||n.includes('esl')||n.includes('icc')||n.includes('listing')||n.includes('approval')||n.includes('epd')||n.includes('sds')||n.includes('safety')||n.includes('guide')||n.includes('install')||n.includes('manual')||n.includes('foreman')||n.includes('warranty')||n.includes('fire')||n.includes('profile')||n.includes('library'))return['DATA','ic-data'];
+  if(n.includes('color')||n.includes('colour'))return['CLR','ic-clr'];
+  return['PDF','ic-pdf'];
+}
+
+function buildChips(){
+  const row=document.getElementById('chips');
+  DOCS.forEach(m=>{
+    const b=document.createElement('button');
+    b.className='chip';b.textContent=m.mfg;
+    b.onclick=()=>setFilter(m.mfg,b);
+    row.appendChild(b);
+  });
+}
+
+function buildLib(){
+  const lib=document.getElementById('lib');
+  let total=0;
+  DOCS.forEach((m,i)=>{
+    let cnt=0;
+    if(m.docs)cnt=m.docs.length;
+    if(m.groups)m.groups.forEach(g=>cnt+=g.docs.length);
+    total+=cnt;
+    const card=document.createElement('div');
+    card.className='mfg-card';
+    card.dataset.mfg=m.mfg;
+    card.dataset.types=(TYPES[m.mfg]||[]).join(',');
+    card.style.animationDelay=(i*0.04)+'s';
+    const vis=document.createElement('div');vis.className='mfg-visual';
+    vis.style.background=MFG_GRADIENTS[m.mfg]||'var(--navy2)';
+    const img=document.createElement('img');
+    img.src=MFG_IMGS[m.mfg]||'';img.alt=m.mfg;img.loading='lazy';
+    img.style.position='absolute';img.style.inset='0';img.style.width='100%';img.style.height='100%';img.style.objectFit='cover';img.style.transition='opacity .6s';img.style.opacity='0';
+    img.onerror=function(){this.style.opacity='0';};
+    img.onload=function(){this.style.opacity='1';};
+    const ov=document.createElement('div');ov.className='mfg-visual-overlay';
+    const bT=BADGES[m.mfg];
+    if(bT){const bd=document.createElement('div');bd.className=bT==='new'?'badge-new':'badge-featured';bd.textContent=bT==='new'?'+ New Docs':'Featured';vis.appendChild(bd);}
+    const lbl=document.createElement('div');lbl.className='mfg-visual-label';
+    const lblL=document.createElement('div');
+    lblL.innerHTML='<div class="mfg-title">'+m.mfg+'</div><div class="mfg-subtitle">'+(SUBS[m.mfg]||'')+'</div>';
+    lbl.appendChild(lblL);
+    const lblA=document.createElement('div');lblA.className='mfg-label-actions';
+    if(SPECS[m.mfg]){const sb=document.createElement('a');sb.className='mfg-action-btn btn-spec';sb.href=SPECS[m.mfg];sb.target='_blank';sb.rel='noopener';sb.textContent='Start Specifying';lblA.appendChild(sb);}
+    const sampB=document.createElement('a');sampB.className='mfg-action-btn btn-sample';
+    sampB.href='mailto:alex@metrobuilding.biz?subject=Sample%20Request%20—%20'+encodeURIComponent(m.mfg)+'&body=Hi%20Alex%2C%0A%0ASample%20request%20for%20'+encodeURIComponent(m.mfg)+'%0A%0AProject%3A%0ADelivery%20Address%3A';
+    sampB.textContent='Request Sample';lblA.appendChild(sampB);
+    lbl.appendChild(lblA);
+    vis.appendChild(img);vis.appendChild(ov);vis.appendChild(lbl);
+    card.appendChild(vis);
+    const body=document.createElement('div');body.className='mfg-body';
+    if(m.groups){
+      m.groups.forEach(g=>{
+        const gh=document.createElement('div');gh.className='grp-header';gh.textContent=g.label;body.appendChild(gh);
+        const grid=document.createElement('div');grid.className='doc-grid';
+        g.docs.forEach(d=>grid.appendChild(makeTile(d)));
+        body.appendChild(grid);
+      });
+    }else{
+      const grid=document.createElement('div');grid.className='doc-grid';
+      m.docs.forEach(d=>grid.appendChild(makeTile(d)));
+      body.appendChild(grid);
+    }
+    const rel=RELATED[m.mfg];
+    if(rel&&rel.length){
+      const rr=document.createElement('div');rr.className='related-row';
+      const rl=document.createElement('span');rl.className='related-label';rl.textContent='Often specified with:';rr.appendChild(rl);
+      rel.forEach(r=>{
+        const rc=document.createElement('button');rc.className='related-chip';rc.textContent=r;
+        rc.onclick=()=>{const tBtn=Array.from(document.querySelectorAll('.chip')).find(c=>c.textContent===r);if(tBtn)setFilter(r,tBtn);window.scrollTo({top:document.querySelector('.filter-bar').offsetTop-80,behavior:'smooth'});};
+        rr.appendChild(rc);
+      });
+      body.appendChild(rr);
+    }
+    card.appendChild(body);lib.appendChild(card);
+  });
+  document.getElementById('statDocs').textContent=total;
+  updateCount();
+}
+
+function makeTile(d){
+  const[lbl,cls]=badge(d.n);
+  const dot=d.badge==='new'?'<span class="new-dot"></span>':'';
+  const t=document.createElement('a');
+  t.className='doc-tile';
+  t.href=d.u;t.target='_blank';t.rel='noopener';
+  t.dataset.name=d.n.toLowerCase();
+  t.innerHTML=`<div class="doc-type-badge ${cls}">${lbl}</div><div class="doc-tile-body"><div class="doc-info"><div class="doc-name">${d.n}</div></div>${dot}<svg class="doc-arrow" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></div>`;
+  return t;
+}
+
+function setFilter(mfg,btn){
+  activeFilter=mfg;
+  document.querySelectorAll('.chip').forEach(c=>c.classList.remove('on'));
+  if(btn)btn.classList.add('on');
+  filterLib();
+}
+
+
+function filterLib(){
+  const q=document.getElementById('si').value.trim().toLowerCase();
+  let visible=0;
+  document.querySelectorAll('.mfg-card').forEach(card=>{
+    const mfg=card.dataset.mfg;
+    const mfgMatch=activeFilter==='all'||mfg===activeFilter;
+    card.querySelectorAll('.doc-tile').forEach(t=>t.classList.remove('hidden'));
+    let searchMatch=true;
+    if(q){
+      const mfgHit=mfg.toLowerCase().includes(q);
+      if(!mfgHit){
+        let anyTileMatch=false;
+        card.querySelectorAll('.doc-tile').forEach(t=>{
+          const nm=(t.querySelector('.doc-name')||{}).textContent||'';
+          if(nm.toLowerCase().includes(q)){anyTileMatch=true;}
+          else t.classList.add('hidden');
+        });
+        searchMatch=anyTileMatch;
+      }
+    }
+    const show=mfgMatch&&searchMatch;
+    card.classList.toggle('hidden',!show);
+    if(show)visible++;
+  });
+  document.getElementById('noRes').classList.toggle('hidden',visible>0);
+  updateCount();
+}
+
+function updateCount(){
+  const total=document.querySelectorAll('.mfg-card').length;
+  const vis=document.querySelectorAll('.mfg-card:not(.hidden)').length;
+  document.getElementById('cnt').textContent='Showing '+vis+' of '+total+' manufacturers';
+}
+
+function buildGallery(){
+  const grid=document.getElementById('galleryGrid');
+  GALLERY.forEach((item,i)=>{
+    const el=document.createElement('div');
+    el.className='gallery-item';el.dataset.material=item.material;
+    el.style.animationDelay=(i*0.05)+'s';
+    el.style.background=MFG_GRADIENTS[item.mfg]||'var(--navy2)';
+    el.innerHTML='<img src="'+item.img+'" alt="'+item.mfg+'" loading="lazy"><div class="gallery-overlay"></div><div class="gallery-caption"><div class="gallery-cap-mfg">'+item.mfg+'</div><div class="gallery-cap-desc">'+item.desc+'</div><span class="gallery-cap-link">View Documents &#8594;</span></div>';
+    el.onclick=()=>openLightbox(item,item.img);
+    grid.appendChild(el);
+  });
+}
+
+function setGalleryFilter(mat,btn){
+  activeGalleryFilter=mat;
+  document.querySelectorAll('#galleryChips .chip').forEach(c=>c.classList.remove('on'));
+  if(btn)btn.classList.add('on');
+  document.querySelectorAll('.gallery-item').forEach(el=>{
+    const show=mat==='all'||el.dataset.material===mat;
+    el.classList.toggle('hidden',!show);
+  });
+}
+
+let currentMfg='';
+function openLightbox(item,imgSrc){
+  currentMfg=item.mfg;
+  const lbImg=document.getElementById('lbImg');
+  lbImg.src=imgSrc||'';
+  lbImg.style.background=MFG_GRADIENTS[item.mfg]||'var(--navy2)';
+  document.getElementById('lbMfg').textContent=item.mfg;
+  document.getElementById('lbDesc').textContent=item.desc;
+  document.getElementById('lightbox').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeLightbox(){
+  document.getElementById('lightbox').classList.remove('open');
+  document.body.style.overflow='';
+}
+function closeLightboxBg(e){if(e.target===document.getElementById('lightbox'))closeLightbox();}
+document.getElementById('lbDocsBtn').onclick=function(){
+  closeLightbox();
+  showTab('library',document.querySelector('.nav-tab'));
+  setTimeout(()=>{
+    const btn=Array.from(document.querySelectorAll('.chip')).find(c=>c.textContent===currentMfg);
+    if(btn)setFilter(currentMfg,btn);
+  },200);
+};
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeLightbox();});
+
+function buildCEU(){
+  const grid=document.getElementById('ceuGrid');
+  CEUS.forEach((c,i)=>{
+    const card=document.createElement('div');card.className='ceu-card';
+    card.style.animationDelay=(i*0.08)+'s';
+    card.innerHTML='<div class="ceu-card-top" style="background:'+c.grad+'"><div class="ceu-card-overlay"></div><div class="ceu-hours">'+c.hours+'</div></div><div class="ceu-body"><div class="ceu-topics">'+c.topics.map(t=>'<span class="ceu-topic">'+t+'</span>').join('')+'</div><div class="ceu-title">'+c.title+'</div><div style="font-size:10px;font-weight:600;color:var(--gold);letter-spacing:.05em;margin-bottom:6px">'+c.presenter+'</div><div class="ceu-desc">'+c.desc+'</div><a class="ceu-book-btn" href="mailto:alex@metrobuilding.biz?subject=CEU%20Request%3A%20'+encodeURIComponent(c.title)+'&body=Hi%20Alex%2C%0A%0AWe%20would%20like%20to%20schedule%3A%20'+encodeURIComponent(c.title)+'%0A%0AFirm%3A%0ADate%3A%0AAttendees%3A">Book This Presentation</a></div>';
+    grid.appendChild(card);
+  });
+}
+
+function buildTeam(){
+  const grid=document.getElementById('teamGrid');
+  TEAM.forEach((p,i)=>{
+    const card=document.createElement('div');card.className='rep-card';
+    card.style.animationDelay=(i*0.06)+'s';
+    card.innerHTML='<div class="rep-avatar">'+p.initials+'</div><div class="rep-name">'+p.name+'</div><div class="rep-title">'+p.title+'</div><div class="rep-contacts"><a class="rep-contact" href="mailto:'+p.email+'"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,12 2,6"/></svg>'+p.email+'</a><a class="rep-contact" href="tel:'+p.phone.replace(/[^0-9+]/g,'')+'"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.99 12 19.79 19.79 0 0 1 1.93 3.22 2 2 0 0 1 3.9 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 8.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>'+p.phone+'</a></div>';
+    grid.appendChild(card);
+  });
+}
+
+
+
+function makeMapIcon(material){
+  const color=MAT_COLORS[material]||'#0a1628';
+  const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="28" height="36" viewBox="0 0 28 36"><path d="M14 0C6.27 0 0 6.27 0 14c0 9.33 14 22 14 22s14-12.67 14-22C28 6.27 21.73 0 14 0z" fill="${color}" stroke="white" stroke-width="1.5"/><circle cx="14" cy="14" r="5" fill="white" opacity="0.9"/></svg>`;
+  return L.divIcon({html:svg,className:'',iconSize:[28,36],iconAnchor:[14,36],popupAnchor:[0,-36]});
+}
+
+function initMap(){
+  if(leafletMap)return;
+  leafletMap=L.map('projectMap').setView([40.73,-74.1],9);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{
+    attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+    subdomains:'abcd',maxZoom:19
+  }).addTo(leafletMap);
+  renderMapMarkers('all');
+}
+
+function renderMapMarkers(filter){
+  mapMarkers.forEach(m=>leafletMap.removeLayer(m));
+  mapMarkers=[];
+  const items=filter==='all'?MAP_PROJECTS:MAP_PROJECTS.filter(p=>p.material===filter);
+  items.forEach(p=>{
+    const docsHtml=p.docs.map(d=>`<a href="${d.u}" target="_blank" style="display:inline-block;margin:3px 3px 0 0;padding:4px 10px;background:#1a4a8a;color:white;border-radius:3px;font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;text-decoration:none">${d.n}</a>`).join('');
+    const popup=`<div style="font-family:'Montserrat',sans-serif;min-width:220px"><div style="font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:${MAT_COLORS[p.material]||'#0a1628'};margin-bottom:3px">${p.mfg}</div><div style="font-size:13px;font-weight:600;color:#0a1628;margin-bottom:2px">${p.desc}</div><div style="font-size:11px;color:#7a8090;margin-bottom:10px">📍 ${p.address}</div><div style="line-height:1.8">${docsHtml}</div></div>`;
+    const marker=L.marker([p.lat,p.lng],{icon:makeMapIcon(p.material)}).addTo(leafletMap).bindPopup(popup,{maxWidth:300,className:'mbsi-popup'});
+    mapMarkers.push(marker);
+  });
+}
+
+function filterMap(mat,btn){
+  activeMapFilter=mat;
+  document.querySelectorAll('#mapChips .chip').forEach(c=>c.classList.remove('on'));
+  if(btn)btn.classList.add('on');
+  if(leafletMap)renderMapMarkers(mat);
+}
+
+function showTab(name,btn){
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById(name+'Panel').classList.add('active');
+  if(btn)btn.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+  if(name==='map'){setTimeout(()=>{initMap();if(leafletMap)leafletMap.invalidateSize();},120);}
+}
+
+window.addEventListener('DOMContentLoaded',()=>{
+  buildChips();buildLib();buildGallery();buildCEU();buildTeam();
+});
+</script>
+</body>
+</html>
